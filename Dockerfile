@@ -1,6 +1,17 @@
-# see https://hub.docker.com/r/hashicorp/packer/tags for all available tags
-FROM hashicorp/packer:light@sha256:f795aace438ef92e738228c21d5ceb7d5dd73ceb7e0b1efab5b0e90cbc4d4dcd
+FROM docker.mirror.hashicorp.services/golang:alpine
+LABEL maintainer="The Packer Team <packer@hashicorp.com>"
 
-COPY "entrypoint.sh" "/entrypoint.sh"
+ENV PACKER_DEV=1
 
-ENTRYPOINT ["/entrypoint.sh"]
+RUN apk add --no-cache git bash openssl ca-certificates
+RUN go install github.com/mitchellh/gox@latest
+RUN git clone https://github.com/hashicorp/packer $GOPATH/src/github.com/hashicorp/packer
+
+WORKDIR $GOPATH/src/github.com/hashicorp/packer
+
+RUN /bin/bash scripts/build.sh
+
+EXPOSE 8000
+
+WORKDIR $GOPATH
+ENTRYPOINT ["bin/packer"]
