@@ -11,6 +11,7 @@
       - [`command`](#command)
       - [`arguments`](#arguments)
       - [`target`](#target)
+      - [`working_directory`](#working_directory)
   - [Detailed logs](#detailed-logs)
   - [Notes](#notes)
   - [Author Information](#author-information)
@@ -58,19 +59,23 @@ jobs:
           command: build
           arguments: "-color=false -on-error=abort"
           target: packer.pkr.hcl
+          working_directory: infrastructure/packer
         env:
           PACKER_LOG: 1
+          HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+          HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
 
       # additional steps to process artifacts
 ```
 
 ### Inputs
 
-| Name        | Description                    | Required | Default |
-|-------------|--------------------------------|----------|---------|
-| `command`   | command to execute             | yes      |         |
-| `arguments` | arguments for command          | no       |         |
-| `target`    | file(s) or directory to target | no       |   `.`   |
+| Name                | Description                    | Required | Default |
+|---------------------|--------------------------------|----------|---------|
+| `command`           | command to execute             | yes      |         |
+| `arguments`         | arguments for command          | no       |         |
+| `target`            | file(s) or directory to target | no       |   `.`   |
+| `working_directory` | working directory for command  | no       |   `.`   |
 
 #### `command`
 
@@ -106,6 +111,10 @@ The arguments must be provided as a single string. Multiple arguments should be 
 
  The Action will iterate over each file and run each `command`, separately.
 
+#### `working_directory`
+
+`working_directory` supports a string consisting of a directory path. This should be a relative path in your repository where you want the packer command to run.
+
 ## Detailed logs
 
 Packer has an option to enable more detailed logs by setting the `PACKER_LOG` environment variable.
@@ -128,6 +137,9 @@ To set `PACKER_LOG=1`, simply define the environment variable in the step config
 ## Notes
 
 - To enable debug logging, create a secret named `ACTIONS_STEP_DEBUG` with the value `true`. See [here](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-a-debug-message) for more information.
+
+- If you want to use HCP Packer as central image repository, do not forget to add HCP Secrets under your repo settings. See [here](https://github.com/Azure/actions-workflow-samples/blob/master/assets/create-secrets-for-GitHub-workflows.md)
+- When using [HCP Packer Registry](https://cloud.hashicorp.com/docs/packer), you will need to set `HCP_CLIENT_ID` and `HCP_CLIENT_SECRET` environment variables to your job steps. See [Service Principals](https://cloud.hashicorp.com/docs/hcp/access-control/service-principals) guide for how you can generate these credentials, and [Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) guide for how you can configure and reference secrets in your Actions.
 
 ## Author Information
 
