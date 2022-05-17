@@ -1,4 +1,4 @@
-FROM move4up/packer-ansible-alpine:latest
+FROM devopspleb/ansible-packer:latest
 
 COPY "entrypoint.sh" "/entrypoint.sh"
 
